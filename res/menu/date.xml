@@ -1,0 +1,9 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.lehoannounce.app.DateActivity" >
+    
+    <item android:id="@+id/action_return"
+        android:title="@string/action_return"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+</menu>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:gravity="fill_horizontal|left"
+    android:padding="5dp">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imgIcon"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/nonoti"
+        android:baselineAlignBottom="false"
+        android:clickable="false"
+        android:src="@drawable/nonoti"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentRight="false"
+        android:layout_alignWithParentIfMissing="false"
+        android:layout_margin="10dp"
+        android:cropToPadding="false"
+        android:layout_alignParentEnd="false"
+        android:adjustViewBounds="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Windows/Mac/Ios/Android"
+        android:id="@+id/txtSubject"
+        android:focusableInTouchMode="false"
+        android:typeface="sans"
+        android:textStyle="bold"
+        android:layout_toRightOf="@+id/imgIcon"
+        android:layout_marginTop="5dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="ICT Infrastructuur II"
+        android:id="@+id/textCC"
+        android:layout_below="@+id/txtSubject"
+        android:layout_alignLeft="@+id/txtSubject"
+        android:layout_alignStart="@+id/txtSubject" />
+</RelativeLayout>

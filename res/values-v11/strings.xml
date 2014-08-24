@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">ALeho</string>
+    <string name="subjects">Subjects</string>
+    <string name="dates">Date of announcements</string>
+    <string name="action_return">Return</string>
+    <string name="action_openLink">Go to</string>
+    <string name="title_activity_date">ALeho</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_announce">AnnounceActivity</string>
+    <string name="action_example">Example action</string>
+    <string name="action_markAll">Mark all as read</string>
+
+</resources>

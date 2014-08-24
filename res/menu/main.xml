@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.nami.lehoannounce.MainActivity" >
+    <item android:id="@+id/action_markAll"
+        android:title="@string/action_markAll"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+    <item android:id="@+id/action_return"
+        android:title="@string/action_return"
+        android:orderInCategory="101"
+        android:showAsAction="never" />
+</menu>
