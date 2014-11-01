@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -206,7 +207,6 @@ public class MainActivity extends Activity implements Observer {
 		
 		@Override
 		protected String doInBackground(String... params) {
-			mProgressDialog.setMessage("What's happening now:\nI'm fetching the subjects from Leho\nI'm checking if there are any announcement for that subject\nI'm passing that information to some functions\nI'm populating my list");
 			populateSubjectsList();
 			return null;
 		}
@@ -215,11 +215,12 @@ public class MainActivity extends Activity implements Observer {
 		protected void onPreExecute() {
 			super.onPreExecute();
 			mProgressDialog = new ProgressDialog(MainActivity.this);
-			mProgressDialog.setMessage("Downloading Newer Version");
+			//mProgressDialog.setMessage("Downloading Newer Version");
 			mProgressDialog.setIndeterminate(true);
 			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 			mProgressDialog.setCancelable(false);
 			mProgressDialog.setTitle("Loading");
+			mProgressDialog.setMessage("What's happening now:\nI'm fetching the subjects from Leho\nI'm checking if there are any announcement for that subject\nI'm passing that information to some functions\nI'm populating the list");
 			mProgressDialog.show();
 		}
 		

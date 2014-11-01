@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +20,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +30,8 @@ public class DateActivity extends Activity {
     //Date, Announcement
     private DateOA[] datoa;
     private List<String> dates = new ArrayList<String>();
+    private String[] dow = {"Zondag","Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag"};
+    private String[] nom = {"Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli", "Augustus", "September", "Oktober", "November", "December"};
     Config config;
 
     @Override
@@ -98,13 +102,18 @@ public class DateActivity extends Activity {
             if(position < update )
                 itemView.setBackgroundColor(Color.argb(100, 204, 255, 204));
             //Find the date
-            String[] currentDate = dates.get(position).split(" ");
+            String[] currentDate = dates.get(position).split("-");
             ImageView imageView = (ImageView) itemView.findViewById(R.id.imgIcon);
             imageView.setImageResource(R.drawable.anicon);
             TextView textView = (TextView) itemView.findViewById(R.id.txtSubject);
-            textView.setText(currentDate[1] + " " + currentDate[2] + " " + currentDate[3]);
             TextView cat = (TextView) itemView.findViewById(R.id.textCC);
-            cat.setText(currentDate[0]);
+            Calendar c = Calendar.getInstance();
+            c.set(Integer.parseInt(currentDate[0]), Integer.parseInt(currentDate[1]), Integer.parseInt(currentDate[2]));
+            int dayOfWeek = c.get(Calendar.DAY_OF_WEEK) - 1;
+            int nameOfMonth = c.get(Calendar.MONTH);
+            
+            textView.setText(currentDate[2] + " " + nom[nameOfMonth].toString() + " " + currentDate[0]);
+            cat.setText(dow[dayOfWeek].toString());
             notifyDataSetChanged();
             return itemView;
         }

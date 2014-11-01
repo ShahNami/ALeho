@@ -2,15 +2,19 @@ package com.nami.aleho;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.unbescape.html.HtmlEscape;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,11 +32,13 @@ public class Crawler {
 
     public void setUpdate(String code) throws IOException {
         Document doc = setConnection(config.getAnnouncePath()+code);
-        Element announceTable = doc.select("#agenda_list").first();
-        int sizeNow = announceTable.getElementsByClass("announcements_datum").size();
-        subjectPrefsEditor = subjectPreferences.edit();
-        subjectPrefsEditor.putString(code, Integer.toString(sizeNow));
-        subjectPrefsEditor.commit();
+        if(doc.toString().contains("sort_area")){
+	        Element announceTable = doc.select("#sort_area").first();
+	        int sizeNow = announceTable.getElementsByClass("announcement").size();
+	        subjectPrefsEditor = subjectPreferences.edit();
+	        subjectPrefsEditor.putString(code, Integer.toString(sizeNow));
+	        subjectPrefsEditor.commit();
+        }
     }
 
     public Crawler(Context ctxt){
@@ -55,34 +61,31 @@ public class Crawler {
     }
 
     public LinkedHashMap<String, String> getIDS(String path) throws IOException {
-        Document doc = setConnection(path);
-        LinkedHashMap<String, String> ids = new LinkedHashMap<String, String>();
-        Elements links = doc.select("a[href~=leho.howest.be/courses/CUR]");
-        Elements mainContent = doc.select("ul.user_course_category");
-        int count = 0;
-        for(int i=0;i<links.size();i++){
-            int from = links.get(i).toString().lastIndexOf("CUR");
-            int to = links.get(i).toString().lastIndexOf("\">") - 1;
-            //14, 15, 16, 17 define category change
-            if(i != 0){
-                String categoryChange = links.get(i - 1).toString().substring(from, to).substring(13, 17);
-                if(!links.get(i).toString().substring(from, to).substring(13, 17).equalsIgnoreCase(categoryChange)){
-                    count++;
-                }
-                //We don't want this now do we?
-                if(mainContent.get(count).text().toLowerCase().contains("algemeen")){
-                    count++;
-                }
-            }
-            //Java SSD redirection fix
-            if(links.get(i).toString().substring(from, to).equalsIgnoreCase("CUR05600791010337001986")){
-                ids.put("CUR05600791010336001986", links.get(i).text() + "///" + mainContent.get(count).text().substring(mainContent.get(count).text().lastIndexOf("- ") + 2));
-            } else {
-                ids.put(links.get(i).toString().substring(from, to), links.get(i).text() + "///" + mainContent.get(count).text().substring(mainContent.get(count).text().lastIndexOf("- ") + 2));
-            }
-        }
-        config.setSubjects(ids);
-        return ids;
+    	Document doc = setConnection(path);
+    	LinkedHashMap<String, String> ids = new LinkedHashMap<String, String>();
+    	Elements blocks = doc.getElementsByClass("user_course_category");
+    	for(int i=0;i<blocks.size();i++){
+    		// Fetching Title here
+    		String titleBlock = blocks.get(i).getElementsByClass("title").toString();
+    		int startI = titleBlock.lastIndexOf(" - ") + 3;
+    		int endI = titleBlock.length() - 7;
+    		String category = HtmlEscape.unescapeHtml(titleBlock.substring(startI, endI));
+    		// Fetching Course ID here
+    		Elements links = blocks.get(i).getElementsByClass("course").select("a[href*=leho.howest.be/main/course_home/course_home.php?cidReq=]");
+    		for(int j=0;j<links.size();j++){
+    			if(links.get(j).toString().contains("CUR")){
+	                int from = links.get(j).toString().lastIndexOf("CUR");
+	                int to = links.get(j).toString().lastIndexOf("\">");
+	                String courseID = links.get(j).toString().substring(from, to);
+	                // Fetching Course name here
+	                String courseName = HtmlEscape.unescapeHtml(links.get(j).toString().substring(to + 2, links.get(j).toString().length()-4));
+	                ids.put(courseID, courseName+"///"+category);
+	                //Log.d(courseID, courseName+"///"+category);
+    			}
+    		}
+    	}
+    	config.setSubjects(ids);
+    	return ids;
     }
 
     private Map<String, String> convertCookies(String[] cookies){
@@ -103,24 +106,31 @@ public class Crawler {
     }
     public DateOA[] getAnnouncementDates(String code) throws IOException {
         Document doc = setConnection(config.getAnnouncePath()+code);
-        Element announceTable = doc.select("#agenda_list").first();
-        int sizeNow = announceTable.getElementsByClass("announcements_datum").size();
-        DateOA[] dates = new DateOA[sizeNow];
-        for(int i=0;i<sizeNow;i++){
-            String date = announceTable.getElementsByClass("announcements_datum").get(i).text().substring(announceTable.getElementsByClass("announcements_datum").get(i).text().indexOf(": ") + 2);
-            String announcement = announceTable.getElementsByClass("text").get(i).html();
-            String title = announceTable.getElementsByClass("data").get(i).text().substring(0, announceTable.getElementsByClass("data").get(i).text().toLowerCase().indexOf("zichtbaar voor"));
-            dates[i] = new DateOA(date, announcement, title);
+        DateOA[] dates = new DateOA[0];
+        if(doc.toString().contains("sort_area")){
+	        Element announceTable = doc.getElementById("sort_area");
+	        Elements announcements = announceTable.getElementsByClass("announcement");
+	        int sizeNow = announcements.size();
+	        dates = new DateOA[sizeNow];
+	        for(int i=0;i<sizeNow;i++){
+	        	String t = announcements.get(i).getElementsByClass("invisible").text();
+	        	String date = t.substring(t.lastIndexOf(": ") + 2,t.lastIndexOf(": ") + 12);
+	            String announcement = announcements.get(i).getElementsByClass("visible").html();
+	            String title = announcements.get(i).getElementsByClass("announcement_title").text();
+	            dates[i] = new DateOA(date, announcement, title);
+	        }
         }
         return dates;
     }
 
     public void checkForUpdate(String code) throws IOException {
         Document doc = setConnection(config.getAnnouncePath()+code);
-        Element announceTable = doc.select("#agenda_list").first();
-        int sizeNow = announceTable.getElementsByClass("announcements_datum").size();
-        if((Integer.parseInt(subjectPreferences.getString(code, "0")) < sizeNow) || (subjectPreferences.getString(code, "0") == null)){
-            needsUpdate = (sizeNow - Integer.parseInt(subjectPreferences.getString(code, "0")));
+        if(doc.toString().contains("sort_area")){
+	        Element announceTable = doc.getElementById("sort_area");
+	        int sizeNow = announceTable.getElementsByClass("announcement").size();
+	        if((Integer.parseInt(subjectPreferences.getString(code, "0")) < sizeNow) || (subjectPreferences.getString(code, "0") == null)){
+	            needsUpdate = (sizeNow - Integer.parseInt(subjectPreferences.getString(code, "0")));
+	        }
         }
     }
 }

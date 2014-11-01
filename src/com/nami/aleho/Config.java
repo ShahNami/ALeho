@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class Config {
     private static String lehoAnnouncementPath = "http://leho.howest.be/main/announcements/announcements.php?cidReq=";
-    private static String lehoCoursePath = "http://leho.howest.be/user_courses.php";
+    private static String lehoCoursePath = "http://leho.howest.be/index.php";
 
     private Map<String, String> cookies;
     private LinkedHashMap<String, String> subjects;
