@@ -21,8 +21,10 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class DateActivity extends Activity {
@@ -30,7 +32,6 @@ public class DateActivity extends Activity {
     //Date, Announcement
     private DateOA[] datoa;
     private List<String> dates = new ArrayList<String>();
-    private String[] dow = {"Zondag","Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag"};
     private String[] nom = {"Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli", "Augustus", "September", "Oktober", "November", "December"};
     Config config;
 
@@ -108,12 +109,11 @@ public class DateActivity extends Activity {
             TextView textView = (TextView) itemView.findViewById(R.id.txtSubject);
             TextView cat = (TextView) itemView.findViewById(R.id.textCC);
             Calendar c = Calendar.getInstance();
-            c.set(Integer.parseInt(currentDate[0]), Integer.parseInt(currentDate[1]), Integer.parseInt(currentDate[2]));
-            int dayOfWeek = c.get(Calendar.DAY_OF_WEEK) - 1;
-            int nameOfMonth = c.get(Calendar.MONTH) - 1;
-            
+            c.set(Integer.parseInt(currentDate[0]), Integer.parseInt(currentDate[1]) -1, Integer.parseInt(currentDate[2]));
+            int nameOfMonth = c.get(Calendar.MONTH);
             textView.setText(currentDate[2] + " " + nom[nameOfMonth].toString() + " " + currentDate[0]);
-            cat.setText(dow[dayOfWeek].toString());
+            String dayLongName = c.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
+            cat.setText(dayLongName);
             notifyDataSetChanged();
             return itemView;
         }
