@@ -110,7 +110,7 @@ public class DateActivity extends Activity {
             Calendar c = Calendar.getInstance();
             c.set(Integer.parseInt(currentDate[0]), Integer.parseInt(currentDate[1]), Integer.parseInt(currentDate[2]));
             int dayOfWeek = c.get(Calendar.DAY_OF_WEEK) - 1;
-            int nameOfMonth = c.get(Calendar.MONTH);
+            int nameOfMonth = c.get(Calendar.MONTH) - 1;
             
             textView.setText(currentDate[2] + " " + nom[nameOfMonth].toString() + " " + currentDate[0]);
             cat.setText(dow[dayOfWeek].toString());
