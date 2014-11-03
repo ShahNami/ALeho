@@ -8,7 +8,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Config {
+import android.app.Application;
+
+public class Config{
     private static String lehoAnnouncementPath = "http://leho.howest.be/main/announcements/announcements.php?cidReq=";
     private static String lehoCoursePath = "http://leho.howest.be/index.php";
 
@@ -16,7 +18,16 @@ public class Config {
     private LinkedHashMap<String, String> subjects;
     private boolean isLoggedIn;
 
-    public Config(){}
+    private static Config instance = null;
+    protected Config() {
+       // Exists only to defeat instantiation.
+    }
+    public static Config getInstance() {
+       if(instance == null) {
+          instance = new Config();
+       }
+       return instance;
+    }
 
     public String getCoursePath(){
         return lehoCoursePath;
@@ -27,6 +38,14 @@ public class Config {
     public Map<String, String> getCookies()
     {
         return this.cookies;
+    }
+    public String[] getCookiesAsString(){
+    	String[] c = new String[2];
+    	for (Map.Entry<String, String> entry : this.cookies.entrySet()) {
+    		c[0] = entry.getKey();
+    		c[1] = entry.getValue();
+        }
+    	return c;
     }
     public void setCookies(Map<String, String> cookies)
     {

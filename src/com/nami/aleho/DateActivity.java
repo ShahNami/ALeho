@@ -32,7 +32,6 @@ public class DateActivity extends Activity {
     //Date, Announcement
     private DateOA[] datoa;
     private List<String> dates = new ArrayList<String>();
-    private String[] nom = {"Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli", "Augustus", "September", "Oktober", "November", "December"};
     Config config;
 
     @Override
@@ -110,8 +109,8 @@ public class DateActivity extends Activity {
             TextView cat = (TextView) itemView.findViewById(R.id.textCC);
             Calendar c = Calendar.getInstance();
             c.set(Integer.parseInt(currentDate[0]), Integer.parseInt(currentDate[1]) -1, Integer.parseInt(currentDate[2]));
-            int nameOfMonth = c.get(Calendar.MONTH);
-            textView.setText(currentDate[2] + " " + nom[nameOfMonth].toString() + " " + currentDate[0]);
+            String monthLongName = c.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+            textView.setText(currentDate[2] + " " + monthLongName + " " + currentDate[0]);
             String dayLongName = c.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
             cat.setText(dayLongName);
             notifyDataSetChanged();

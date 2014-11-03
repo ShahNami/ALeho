@@ -2,6 +2,7 @@ package com.nami.aleho;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -32,7 +33,10 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ExecutionException;
 
-
+/*
+ * TODO:
+ * How to stay logged on to Leho after app quits -> NotifyService
+ * */
 public class MainActivity extends Activity implements Observer {
 
     private List<Subject> subjects = new ArrayList<Subject>();
@@ -44,10 +48,10 @@ public class MainActivity extends Activity implements Observer {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //notifyService(false);
         crawler = new Crawler(MainActivity.this.getApplicationContext());
         crawler.setCookies(getIntent().getExtras().getStringArray("cookie"));
         setTitle("ALeho");
-
         if(crawler.getCookies().length > 0) {
         	new InitiateOp().execute("");
         } else {
@@ -55,6 +59,36 @@ public class MainActivity extends Activity implements Observer {
             Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
             MainActivity.this.startActivity(loginIntent);
         }
+    }
+    
+    private void notifyService(boolean start){
+    	Intent intent = new Intent(this, NotifyService.class);
+    	if(start)
+            this.startService(intent);
+    	else
+    		this.stopService(intent);
+    }
+    
+    public void onResume() {
+        super.onResume();
+        //notifyService(false);
+    }
+    
+    public void onPause(){
+    	super.onPause();
+    	//notifyService(false);
+    }
+    
+
+    public void onDestroy(){
+    	super.onDestroy();
+    	//notifyService(true);
+    }
+    
+    @Override
+    public void onBackPressed() {
+        finish();
+        overridePendingTransition(R.anim.right_slide_in, R.anim.right_slide_out);
     }
 
     private void addToSubject(int updates, String cat, String name, String code, DateOA[] date, int r){
@@ -195,12 +229,6 @@ public class MainActivity extends Activity implements Observer {
         }
         return super.onOptionsItemSelected(item);
     }
-
-    @Override
-    public void onBackPressed() {
-        finish();
-        overridePendingTransition(R.anim.right_slide_in, R.anim.right_slide_out);
-    }
     
     
 	private class InitiateOp extends AsyncTask<String, Void, String> {
@@ -220,7 +248,7 @@ public class MainActivity extends Activity implements Observer {
 			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 			mProgressDialog.setCancelable(false);
 			mProgressDialog.setTitle("Loading");
-			mProgressDialog.setMessage("What's happening now:\nI'm fetching the subjects from Leho\nI'm checking if there are any announcement for that subject\nI'm passing that information to some functions\nI'm populating the list");
+			mProgressDialog.setMessage("What's happening now:\n- Fetching the subjects\n- Checking for any announcements\n- Fetching the dates\n- Populating the list");
 			mProgressDialog.show();
 		}
 		

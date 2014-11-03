@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class Crawler {
     private String[] cookies;
-    private Config config;
+    private Config config = Config.getInstance();
     private SharedPreferences subjectPreferences;
     private SharedPreferences.Editor subjectPrefsEditor;
     private int needsUpdate;
@@ -42,7 +42,6 @@ public class Crawler {
     }
 
     public Crawler(Context ctxt){
-        config = new Config();
         cookies = new String[2];
         subjectPreferences = ctxt.getSharedPreferences("subjectPrefs", Context.MODE_PRIVATE);
         needsUpdate = 0;
@@ -54,6 +53,7 @@ public class Crawler {
 
     public void setCookies(String[] cookies){
         this.cookies = cookies;
+        this.config.setCookies(cookies);
     }
 
     public String[] getCookies(){
@@ -124,6 +124,7 @@ public class Crawler {
     }
 
     public void checkForUpdate(String code) throws IOException {
+    	//subjectPreferences.edit().clear().commit();
         Document doc = setConnection(config.getAnnouncePath()+code);
         if(doc.toString().contains("sort_area")){
 	        Element announceTable = doc.getElementById("sort_area");
