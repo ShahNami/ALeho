@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.nami.aleho"
-    android:versionCode="8"
-    android:versionName="2.2" >
+    android:versionCode="9"
+    android:versionName="2.3" >
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -61,16 +61,8 @@
             android:label="@string/title_activity_announce"
             android:windowSoftInputMode="stateHidden" >
         </activity>
-        <service android:enabled="false"
+        <service android:enabled="true"
             android:name=".NotifyService"/>
-        <receiver android:process=":remote" android:name=".Alarm"></receiver>
-        <!-- 
-        <receiver android:name=".NotifyServiceReceiver">
-		    <intent-filter>
-		        <action android:name="android.intent.action.BOOT_COMPLETED"></action>
-		    </intent-filter>
-		</receiver>
-		-->
     </application>
 
 </manifest>

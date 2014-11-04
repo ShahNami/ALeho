@@ -1,6 +1,8 @@
 package com.nami.aleho;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -33,25 +35,22 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ExecutionException;
 
-/*
- * TODO:
- * How to stay logged on to Leho after app quits -> NotifyService
- * */
+
 public class MainActivity extends Activity implements Observer {
 
     private List<Subject> subjects = new ArrayList<Subject>();
     Crawler crawler;
     private ListView list;
     ProgressDialog mProgressDialog;
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //notifyService(false);
+        setTitle("ALeho");
         crawler = new Crawler(MainActivity.this.getApplicationContext());
         crawler.setCookies(getIntent().getExtras().getStringArray("cookie"));
-        setTitle("ALeho");
+        Config.getInstance().setCookies(getIntent().getExtras().getStringArray("cookie"));
         if(crawler.getCookies().length > 0) {
         	new InitiateOp().execute("");
         } else {
@@ -62,27 +61,28 @@ public class MainActivity extends Activity implements Observer {
     }
     
     private void notifyService(boolean start){
-    	Intent intent = new Intent(this, NotifyService.class);
-    	if(start)
+    	Intent intent = new Intent(MainActivity.this, NotifyService.class);
+    	if(start) {
+    		Gson gson = new Gson();
+    		intent.putExtra("cookies", Config.getInstance().getCookiesAsString());
+            intent.putExtra("subjectMap", new String(gson.toJson(Config.getInstance().getSubjects())));
             this.startService(intent);
-    	else
+    	} else {
     		this.stopService(intent);
+    	}
     }
     
     public void onResume() {
         super.onResume();
-        //notifyService(false);
     }
     
     public void onPause(){
     	super.onPause();
-    	//notifyService(false);
     }
     
 
     public void onDestroy(){
     	super.onDestroy();
-    	//notifyService(true);
     }
     
     @Override
@@ -226,6 +226,9 @@ public class MainActivity extends Activity implements Observer {
             finish();
             overridePendingTransition(R.anim.right_slide_in, R.anim.right_slide_out);
             return true;
+        } else if(id == R.id.action_stopService){
+        	notifyService(false);
+        	return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -256,6 +259,7 @@ public class MainActivity extends Activity implements Observer {
 		protected void onPostExecute(String result) {
 			populateListView();
             registerClickCallback();
+            notifyService(true);
 			mProgressDialog.dismiss();
 		}
 	}

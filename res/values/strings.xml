@@ -11,7 +11,7 @@
     <string name="title_activity_announce">AnnounceActivity</string>
     <string name="action_example">Example action</string>
     <string name="action_markAll">Mark all as read</string>
-    <string name="title_activity_notify">NotifyActivity</string>
+    <string name="action_stopService">Stop notify service</string>
     <string name="action_settings">Settings</string>
 
 </resources>

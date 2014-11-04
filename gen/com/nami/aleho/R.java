@@ -1104,7 +1104,7 @@ containing a value of this type.
         public static final int action_mode_close_button=0x7f050024;
         public static final int action_openLink=0x7f05004c;
         public static final int action_return=0x7f05004b;
-        public static final int action_settings=0x7f05004e;
+        public static final int action_stopService=0x7f05004e;
         public static final int activity_chooser_view_content=0x7f050025;
         public static final int always=0x7f05000b;
         public static final int beginning=0x7f050011;
@@ -1232,7 +1232,6 @@ containing a value of this type.
         public static final int date=0x7f0c0001;
         public static final int global=0x7f0c0002;
         public static final int main=0x7f0c0003;
-        public static final int notify=0x7f0c0004;
     }
     public static final class string {
         /**  Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] 
@@ -1282,6 +1281,7 @@ containing a value of this type.
         public static final int action_settings=0x7f0a0018;
         public static final int action_sign_in=0x7f0a001c;
         public static final int action_sign_in_short=0x7f0a001d;
+        public static final int action_stopService=0x7f0a0017;
         public static final int app_name=0x7f0a000d;
         public static final int dates=0x7f0a000f;
         public static final int error_field_required=0x7f0a0021;
@@ -1300,7 +1300,6 @@ containing a value of this type.
         public static final int title_activity_announce=0x7f0a0014;
         public static final int title_activity_date=0x7f0a0012;
         public static final int title_activity_login=0x7f0a0019;
-        public static final int title_activity_notify=0x7f0a0017;
     }
     public static final class style {
         /** 

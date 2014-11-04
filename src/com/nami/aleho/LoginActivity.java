@@ -76,7 +76,6 @@ public class LoginActivity extends Activity implements OnClickListener{
         setContentView(R.layout.activity_login);
         cookies = new HashMap<String, String>();
         setTitle("ALeho");
-        
         ok = (Button)findViewById(R.id.email_sign_in_button);
         ok.setOnClickListener(this);
         mEmailView = (EditText)findViewById(R.id.email);

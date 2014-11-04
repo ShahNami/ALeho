@@ -9,4 +9,8 @@
         android:title="@string/action_return"
         android:orderInCategory="101"
         android:showAsAction="never" />
+    <item android:id="@+id/action_stopService"
+        android:title="@string/action_stopService"
+        android:orderInCategory="102"
+        android:showAsAction="never" />
 </menu>
