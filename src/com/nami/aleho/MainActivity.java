@@ -34,7 +34,11 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ExecutionException;
-
+/*
+ * TODO
+ * Cursussen zonder categorie juist parsen
+ * <span class="title" id="title0">Cursussen zonder categorie</span>
+ * */
 
 public class MainActivity extends Activity implements Observer {
 

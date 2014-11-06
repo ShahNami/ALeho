@@ -29,7 +29,6 @@ public class Crawler {
     private SharedPreferences.Editor subjectPrefsEditor;
     private int needsUpdate;
 
-
     public void setUpdate(String code) throws IOException {
         Document doc = setConnection(config.getAnnouncePath()+code);
         if(doc.toString().contains("sort_area")){
@@ -124,7 +123,8 @@ public class Crawler {
     }
 
     public void checkForUpdate(String code) throws IOException {
-    	//subjectPreferences.edit().clear().commit();
+    	if(Constants.DEBUG)
+    		subjectPreferences.edit().clear().commit();
         Document doc = setConnection(config.getAnnouncePath()+code);
         if(doc.toString().contains("sort_area")){
 	        Element announceTable = doc.getElementById("sort_area");

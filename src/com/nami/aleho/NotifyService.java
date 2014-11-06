@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -27,11 +28,17 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+/*
+ * TODO:
+ * BB10 does not support background services yet! (android runtime)
+ * */
 public class NotifyService extends IntentService {
     
     String notificationTitle = "ALeho";
@@ -55,6 +62,10 @@ public class NotifyService extends IntentService {
 	            scheduler.scheduleWithFixedDelay(new Runnable() {
 	                @Override
 	                public void run() {
+	                	PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+	        			PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "NotifyService");
+	        			wl.acquire();
+	                	//Log.d("NotifyService", "Running...");
 	                	if(isActivityRunning(MainActivity.class)){
 	                		//Don't check
 	                		//Log.d("NotifyService", "MainActiviy is running");
@@ -64,35 +75,39 @@ public class NotifyService extends IntentService {
 		                	try{
 		    	            	for (Map.Entry<String, String> entry : subjectMap.entrySet()) {
 		    	            		needsUpdate = checkForUpdate(entry.getKey());
+		    	            		//Log.d("Checking: ", entry.getValue().split("///")[0].toString());
 		    	            		//We've already sent a notification for this subject
-		    	            		if(notificationText.contains(entry.getValue().split("///")[0].toString())){
-		    	            			needsUpdate = false;
-		    	            			break;
-		    	            		} 
+		    	            		//if(notificationText.contains(entry.getValue().split("///")[0].toString())){
+		    	            		//	needsUpdate = false;
+		    	            		//	break;
+		    	            		//}
 	    			                if(needsUpdate){
+	    			                	//Log.d("Notified:", entry.getValue().split("///")[0].toString());
+	    			                	//needsUpdate = true;
 		    		                	notificationText = "New announcement from: " + entry.getValue().split("///")[0].toString();
-		    		                	break;
+		    		                	//break;
+		    		                	//if(needsUpdate){
+		    		               		 	NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		    		                        long when = System.currentTimeMillis();         // notification time
+		    		                        Notification notification = new Notification(R.drawable.ic_launcher, "ALeho", when);
+		    		                        notification.defaults |= Notification.DEFAULT_SOUND;
+		    		                        notification.flags |= notification.FLAG_AUTO_CANCEL;
+		    		                        Intent notificationIntent = new Intent(NotifyService.this, LoginActivity.class);
+		    		                        PendingIntent contentIntent = PendingIntent.getActivity(NotifyService.this, 0, notificationIntent , 0);
+		    		                        notification.setLatestEventInfo(getApplicationContext(), notificationTitle, notificationText, contentIntent);
+		    		                        nm.notify((NOTIF_ID++) % 3, notification); //we don't want to get spammed do we?
+		    		                        needsUpdate = false;
+		    		                	//}
 		    		                }
 		    		            }
 		                	} catch (Exception e){
 		                		//
 		                	}
-		                	if(needsUpdate){
-		               		 	NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		                        long when = System.currentTimeMillis();         // notification time
-		                        Notification notification = new Notification(R.drawable.ic_launcher, "ALeho", when);
-		                        notification.defaults |= Notification.DEFAULT_SOUND;
-		                        notification.flags |= notification.FLAG_AUTO_CANCEL;
-		                        Intent notificationIntent = new Intent(NotifyService.this, LoginActivity.class);
-		                        PendingIntent contentIntent = PendingIntent.getActivity(NotifyService.this, 0, notificationIntent , 0);
-		                        notification.setLatestEventInfo(getApplicationContext(), notificationTitle, notificationText, contentIntent);
-		                        nm.notify(NOTIF_ID, notification);
-		                        needsUpdate = false;
-		                	}
 	                	}
-
+	                	wl.release();
 	                }
-	            }, 3, 15, TimeUnit.MINUTES); //15 minutes
+	            }, 0, 300, TimeUnit.SECONDS); //5 minutes (check 12 times/hour) //Do the cookies expire?
+	            
     		} catch (Exception e) {
     			//Log.d("NotifyService", e.getMessage());
     		}
@@ -128,28 +143,67 @@ public class NotifyService extends IntentService {
         converted.put(cookies[0], cookies[1]);
         return converted;
     }
+    
+    private boolean login(String username, String password) throws InterruptedException
+    {
+        try
+        {
+            Connection.Response res = Jsoup.connect("https://leho.howest.be/secure/index.php").data(new String[] { "login", username, "password", password, "submitAuth", "OK", "_qf__formLogin", "" }).method(Connection.Method.POST).execute();
+            if (res.parse().select("#login_fail").size() > 0) {
+            	return false;
+            } else {
+            	for (Map.Entry<String, String> cookie : res.cookies().entrySet()) {
+            		cookies = new String[]{cookie.getKey(), cookie.getValue()};
+                }
+                return true;
+            }
+        } catch (IOException e) {
+            return false;
+        }
+    }
+    
     private Document setConnection(String path) throws IOException {
+    	/*if(cookies == null || cookies.length == 0){
+    		try {
+				login("", "");
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+			}
+    	}*/
         return Jsoup.connect(path).timeout(10 * 1000).cookies(convertCookies(cookies)).get();
     }
+    
+    private void clearAllPrefs(){
+    	subjectPreferences.edit().clear().commit();
+    }
+    
+    private void setNotified(String code, int size){
+    	subjectPrefsEditor = subjectPreferences.edit();
+        subjectPrefsEditor.putInt(code+":notified", size);
+        subjectPrefsEditor.commit();
+    }
+    
     public boolean checkForUpdate(String code) throws IOException {
+    	if(Constants.DEBUG)
+    		subjectPreferences.edit().clear().commit();
     	int needsUpdate = 0;
         Document doc = setConnection("http://leho.howest.be/main/announcements/announcements.php?cidReq="+code);
         if(doc.toString().contains("sort_area")){
 	        Element announceTable = doc.getElementById("sort_area");
 	        int sizeNow = announceTable.getElementsByClass("announcement").size();
 	        if((Integer.parseInt(subjectPreferences.getString(code, "0")) < sizeNow) || (subjectPreferences.getString(code, "0") == null)){
-	            needsUpdate = (sizeNow - Integer.parseInt(subjectPreferences.getString(code, "0")));
-	            //setUpdate(code);
+	        	needsUpdate = (sizeNow - Integer.parseInt(subjectPreferences.getString(code, "0")));
+	            if(needsUpdate > subjectPreferences.getInt(code+":notified", 0)) {
+	            	setNotified(code, needsUpdate); //Will be 0 or higher
+	            	return true;
+	            }
 	        }
         }
-        if(needsUpdate > 0){
-        	return true;
-        } else {
-        	return false;
-        }
+        return false;
     }
     
-    private static final int NOTIF_ID = 1;
+    private static int NOTIF_ID = 1;
 
     public NotifyService(){
         super("NotifyService");
