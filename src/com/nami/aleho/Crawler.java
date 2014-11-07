@@ -68,7 +68,12 @@ public class Crawler {
     		String titleBlock = blocks.get(i).getElementsByClass("title").toString();
     		int startI = titleBlock.lastIndexOf(" - ") + 3;
     		int endI = titleBlock.length() - 7;
-    		String category = HtmlEscape.unescapeHtml(titleBlock.substring(startI, endI));
+    		String category = "";
+    		if(titleBlock.toLowerCase().contains("zonder categorie")){
+    			category = blocks.get(i).getElementsByClass("title").text();
+    		} else {
+    			category = HtmlEscape.unescapeHtml(titleBlock.substring(startI, endI));
+    		}
     		// Fetching Course ID here
     		Elements links = blocks.get(i).getElementsByClass("course").select("a[href*=leho.howest.be/main/course_home/course_home.php?cidReq=]");
     		for(int j=0;j<links.size();j++){
